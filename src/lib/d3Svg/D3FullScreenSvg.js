@@ -1,26 +1,32 @@
 import * as d3 from 'd3';
 
 export default class D3FullScreenSvg {
-  constructor ({ height, width, root }) {
+  constructor (root) {
     this.root = root || document.body;
-    this.height = height;
-    this.width = width;
     this.d3Svg = d3.select(this.root).append('svg'); // will be set 
     this.init();
   }
 
   init () {
-    const { height, width } = this;
-    this.resize({ height, width });
+    const resize = this.resize.bind(this);
+
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 1000);
+    });
+
+    this.resize();
   }
 
-  resize ({ height, width } = {}) {
-    if (height !== undefined) {
+  resize () {
+    const { innerWidth: width, innerHeight: height } = window;
+    if (height !== undefined && this.height !== height) {
       this.height = height;
       this.d3Svg.attr('width', width);
     }
 
-    if (width !== undefined) {
+    if (width !== undefined && this.width !== width) {
       this.width = width;
       this.d3Svg.attr('height', height);
     }
