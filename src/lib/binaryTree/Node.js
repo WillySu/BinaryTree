@@ -5,6 +5,7 @@ export default class Node {
     this.smallerNode = null;
     this.greaterNode = null;
     this.counter = 0;
+    this.level = 0;
 
     if (this.value !== null) {
       this.counter = 1;

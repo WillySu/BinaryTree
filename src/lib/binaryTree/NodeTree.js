@@ -3,7 +3,6 @@ import Node from './Node';
 export default class NodeTree {
   constructor (head) {
     this.head = head || new Node(); // Node
-    this.level = 0;
   }
 
   // if args can be a number or object
@@ -46,15 +45,18 @@ export default class NodeTree {
     const { level, parentNode, node, value } = attributes;
 
     const nextLevel = level + 1;
+    let needToUpdateLevel = true;
     if (node.value === null) {
       node.value = value;
       node.counter = 1;
+      node.level = level;
       node.parentNode = parentNode || null;
     } else if (value > node.value) {
       if (node.greaterNode) {
         return this.add({ level: nextLevel, parentNode: node, node: node.greaterNode, value });
       } else {
         node.greaterNode = new Node(value);
+        node.greaterNode.level = nextLevel;
         node.greaterNode.parentNode = node;
       }
     } else if (value < node.value) {
@@ -62,14 +64,11 @@ export default class NodeTree {
         return this.add({ level: nextLevel, parentNode: node, node: node.smallerNode, value });
       } else {
         node.smallerNode = new Node(value);
+        node.smallerNode.level = nextLevel;
         node.smallerNode.parentNode = node;
       }
     } else if (value == node.value) {
       node.counter++;
-    }
-
-    if (nextLevel > this.level) {
-      this.level = nextLevel;
     }
   }
 
@@ -114,25 +113,25 @@ export default class NodeTree {
   }
 
   // direction: ASC or DESC
-  travel (args) {
+  traverse (args) {
     const { node } = this.getNodeAttributes(args);
     const direction = (args && args.direction) || 'ASC';
     const list = [];
 
     if (direction === 'ASC' && node.smallerNode) {
-      list.push(...this.travel({ node: node.smallerNode, direction }));
+      list.push(...this.traverse({ node: node.smallerNode, direction }));
     } else if (direction === 'DESC' && node.greaterNode) {
-      list.push(...this.travel({ node: node.greaterNode, direction }));
+      list.push(...this.traverse({ node: node.greaterNode, direction }));
     }
 
     if (node && node.value !== undefined) {
-      list.push(node.value);
+      list.push(node);
     }
 
     if (direction === 'ASC' && node.greaterNode) {
-      list.push(...this.travel({ node: node.greaterNode, direction }));
+      list.push(...this.traverse({ node: node.greaterNode, direction }));
     } else if (direction === 'DESC' && node.smallerNode) {
-      list.push(...this.travel({ node: node.smallerNode, direction }));
+      list.push(...this.traverse({ node: node.smallerNode, direction }));
     }
 
     return list;

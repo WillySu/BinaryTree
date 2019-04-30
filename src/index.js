@@ -12,11 +12,11 @@ function init () {
   binaryTree.add(17);
   binaryTree.add([2, 20]);
 
-  console.log('find', binaryTree.find(17));
+  /* console.log('find', binaryTree.find(17));
   console.log('findGreatestChild', binaryTree.tree.findGreatestChild());
   console.log('findSmallestChild', binaryTree.tree.findSmallestChild());
-  console.log('ASC', binaryTree.tree.travel());
-  console.log('DESC', binaryTree.tree.travel({ direction: 'DESC' }));
+  console.log('ASC', binaryTree.tree.traverse());
+  console.log('DESC', binaryTree.tree.traverse({ direction: 'DESC' }).map(n => n.value)); */
 }
 
 document.addEventListener('DOMContentLoaded', init);
