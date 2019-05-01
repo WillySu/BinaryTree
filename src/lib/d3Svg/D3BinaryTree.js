@@ -3,7 +3,9 @@ import D3FullScreenSvg from './D3FullScreenSvg';
 import NodeTree from '../binaryTree/NodeTree';
 import {
   getNodesByLevel,
-  setCircleAttributes,
+  setCircles,
+  setTexts,
+  setLines,
   setNodesPosition
 } from './d3BinaryTreeUtils.js';
 
@@ -47,10 +49,15 @@ export default class D3BinaryTree extends D3FullScreenSvg {
     circleGroups.exit().remove();
 
     circleGroups.each((d, i, groups) => {
-      const circles = d3.select(groups[i]).selectAll('circle').data(d);
-      circles.enter().append('circle').attr('cx', d => d.cx).attr('cy', d => d.cy);
-      circles.attr('cx', d => d.cx).attr('cy', d => d.cy);
-      circles.exit().remove();
+      const g = d3.select(groups[i]);
+      const lines = g.selectAll('line').data(d);
+      setLines(lines);
+
+      const circles = g.selectAll('circle').data(d);
+      setCircles(circles);
+
+      const texts = g.selectAll('text').data(d);
+      setTexts(texts);
     });
   }
 }

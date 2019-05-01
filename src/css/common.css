@@ -6,6 +6,16 @@ body {
 }
 
 circle {
-  r: 12px;
+  r: 24px;
   fill: orange;
+}
+
+text {
+  dominant-baseline: middle;
+  text-anchor: middle;
+}
+
+line {
+  stroke: black;
+  stroke-width: 3px;
 }
