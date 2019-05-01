@@ -148,7 +148,7 @@ export default class NodeTree {
     }
   } */
 
-  updateLevel () {
-    // to-do
+  get maxLevel () {
+    return Math.max(...this.traverse().map(n => n.level));
   }
 }

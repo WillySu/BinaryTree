@@ -26,17 +26,16 @@ export default class D3FullScreenSvg {
     let needToUpdate = false;
     if (height !== undefined && this.height !== height) {
       this.height = height;
-      this.d3Svg.attr('width', width);
       needToUpdate = true;
     }
 
     if (width !== undefined && this.width !== width) {
       this.width = width;
-      this.d3Svg.attr('height', height);
       needToUpdate = true;
     }
 
     if (needToUpdate) {
+      this.d3Svg.attr('height', height).attr('width', width);
       this.update();
     }
   }
