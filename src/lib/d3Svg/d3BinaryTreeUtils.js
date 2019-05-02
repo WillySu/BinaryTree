@@ -26,8 +26,15 @@ export function setNodesPosition ({ tree, width, height }) {
   });
 }
 
+const AREA_BY_COUNTER = 1810;
+function getRadius (node) {
+  const area = (node.counter || 1) * AREA_BY_COUNTER;
+  return Math.round(Math.sqrt(area / Math.PI));
+}
+
 function setCircle (circles) {
   circles
+    .attr('r', getRadius)
     .attr('cx', n => n.cx)
     .attr('cy', n => n.cy);
 }
@@ -38,11 +45,20 @@ export function setCircles (circles) {
   circles.exit().remove();
 }
 
+function getTextValue (node) {
+  const { counter, value } = node;
+  if (counter > 1) {
+    return value + ' x ' + counter;
+  }
+
+  return value;
+}
+
 function setText (texts) {
   texts
     .attr('x', n => n.cx)
     .attr('y', n => n.cy)
-    .text(n => n.value);
+    .text(getTextValue);
 }
 
 export function setTexts (texts) {
