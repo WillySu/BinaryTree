@@ -78,17 +78,16 @@ export default class NodeTree {
       return;
     }
 
-    const { level, node, value } = attributes;
+    const { node, value } = attributes;
 
     if (node.value === value) {
-      return { node, level };
+      return node;
     }
 
-    const nextLevel = level + 1;
     if (node.greaterNode) {
-      return this.find({ level: nextLevel, node: node.greaterNode, value });
+      return this.find({ node: node.greaterNode, value });
     } else if (node.smallerNode) {
-      return this.find({ level: nextLevel, node: node.smallerNode, value });
+      return this.find({ node: node.smallerNode, value });
     }
   }
 
@@ -137,16 +136,49 @@ export default class NodeTree {
     return list;
   }
 
-  /* extract (args) {
-    const { level, node } = this.find(args);
-    const { parentNode, smallerNode, greaterNode } = node;
-    let replaceByNode;
-    if (parentNode.smallerNode === node) {
-      node
-    } else if (parentNode.greaterNode === node) {
-      
+  extract (args) {
+    const node = this.find(args);
+    if (!node) {
+      return;
     }
-  } */
+
+    const { parentNode, smallerNode, greaterNode, counter } = node;
+    if (counter > 1) {
+      node.counter = counter - 1;
+      return node;
+    }
+
+    // leaf node
+    if (!smallerNode && !greaterNode) {
+      if (!parentNode) { // root
+        this.head = new Node();
+      } else if (parentNode.smallerNode === node) {
+        parentNode.smallerNode = null;
+      } else if (parentNode.greaterNode === node) {
+        parentNode.greaterNode = null;
+      }
+    }
+
+    if (!smallerNode || !greaterNode) {
+      if (!parentNode) { // root
+        this.head = new Node();
+      } else if (parentNode.smallerNode === node) {
+        parentNode.smallerNode = smallerNode || greaterNode;
+      } else if (parentNode.greaterNode === node) {
+        parentNode.greaterNode = smallerNode || greaterNode;
+      }
+    }
+
+    let nodeToBePromoted; // replaced extracted node
+    // !parentNode in case of root node
+    if (parentNode.smallerNode === node) {
+      nodeToBePromoted = findGreatestChild(node);
+    } else if (parentNode.greaterNode === node) {
+      nodeToBePromoted = findSmallestChild(node);
+    }
+
+    return node;
+  }
 
   get maxLevel () {
     return Math.max(...this.traverse().map(n => n.level));
