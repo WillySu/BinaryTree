@@ -30,10 +30,17 @@ export default class D3BinaryTree extends D3FullScreenSvg {
     return this.tree.find(value);
   }
 
+  extract (value) {
+    if (this.tree.extract(value)) {
+      this.update();
+    }
+  }
+
   update () {
     super.update();
 
     const nodeList = setNodesPosition(this);
+
     const lines = this.d3LineG.selectAll('line').data(nodeList);
     setLines(lines);
 

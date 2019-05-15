@@ -2,6 +2,7 @@ export function setNodesPosition ({ tree, width, height }) {
   const len = tree.maxLevel + 1;
   const nodeList = tree.traverse();
   // To-do, improve sort's performance
+  // Maybe try Breadth-first
   nodeList.sort((a, b) => a.level - b.level);
 
   const levelH = len === 0 ? height : Math.round(height / len);
