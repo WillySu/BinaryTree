@@ -16,8 +16,8 @@ export default class NodeTree {
     if (typeof args === 'object') {
       level = args.level || level;
       parentNode = args.parentNode || parentNode;
-      node = args.node || args;
-      value = args.value || node.value || null;
+      node = args.node || args || node;
+      value = args.value || node.value || value;
     } else if (typeof args === 'number') {
       value = args;
     }
