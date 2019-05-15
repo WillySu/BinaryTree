@@ -16,8 +16,8 @@ export default class NodeTree {
     if (typeof args === 'object') {
       level = args.level || level;
       parentNode = args.parentNode || parentNode;
-      node = args.node || node;
-      value = args.value || value;
+      node = args.node || args;
+      value = args.value || node.value || null;
     } else if (typeof args === 'number') {
       value = args;
     }
@@ -45,7 +45,6 @@ export default class NodeTree {
     const { level, parentNode, node, value } = attributes;
 
     const nextLevel = level + 1;
-    let needToUpdateLevel = true;
     if (node.value === null) {
       node.value = value;
       node.counter = 1;
@@ -85,15 +84,22 @@ export default class NodeTree {
     }
 
     if (node.greaterNode) {
-      return this.find({ node: node.greaterNode, value });
-    } else if (node.smallerNode) {
-      return this.find({ node: node.smallerNode, value });
+      const gNode = this.find({ node: node.greaterNode, value });
+      if (gNode) {
+        return gNode;
+      }
+    }
+
+    if (node.smallerNode) {
+      const sNode = this.find({ node: node.smallerNode, value });
+      if (sNode) {
+        return sNode;
+      }
     }
   }
 
   findGreatestChild (args) {
     const { node } = this.getNodeAttributes(args);
-
     if (node && node.greaterNode) {
       return this.findGreatestChild({ node: node.greaterNode });
     }
@@ -136,14 +142,14 @@ export default class NodeTree {
     return list;
   }
 
-  extract (args) {
+  extract (args, ignoreCounter = false) {
     const node = this.find(args);
     if (!node) {
       return;
     }
 
-    const { parentNode, smallerNode, greaterNode, counter } = node;
-    if (counter > 1) {
+    const { parentNode, smallerNode, greaterNode, level, counter } = node;
+    if (counter > 1 && !ignoreCounter) {
       node.counter = counter - 1;
       return node;
     }
@@ -157,24 +163,50 @@ export default class NodeTree {
       } else if (parentNode.greaterNode === node) {
         parentNode.greaterNode = null;
       }
-    }
-
-    if (!smallerNode || !greaterNode) {
-      if (!parentNode) { // root
-        this.head = new Node();
-      } else if (parentNode.smallerNode === node) {
-        parentNode.smallerNode = smallerNode || greaterNode;
-      } else if (parentNode.greaterNode === node) {
-        parentNode.greaterNode = smallerNode || greaterNode;
+      node.level = parentNode.level;
+    } else {
+      let nodeToBePromoted; // replaced extracted node
+      if (smallerNode && greaterNode) {
+        // !parentNode in case of root node
+        if (!parentNode) { // root
+          // can be smallerNode or greaterNode
+          nodeToBePromoted = this.findGreatestChild(smallerNode);
+          nodeToBePromoted = this.extract(nodeToBePromoted, true);
+          nodeToBePromoted.greaterNode = greaterNode;
+          greaterNode.parentNode = nodeToBePromoted;
+          this.head = nodeToBePromoted;
+        } else if (parentNode.smallerNode === node) {
+          nodeToBePromoted = this.findSmallestChild(greaterNode);
+          nodeToBePromoted = this.extract(nodeToBePromoted, true);
+          parentNode.smallerNode = nodeToBePromoted;
+        } else if (parentNode.greaterNode === node) {
+          nodeToBePromoted = this.findGreatestChild(smallerNode);
+          nodeToBePromoted = this.extract(nodeToBePromoted, true);
+          parentNode.greaterNode = nodeToBePromoted;
+        }
+      } else if (smallerNode || greaterNode) {
+        nodeToBePromoted = this.extract(smallerNode || greaterNode, true);
+        if (!node.parentNode) { // root
+          this.head = childNode;
+        } else if (node.parentNode.smallerNode === node) {
+          node.parentNode.smallerNode = nodeToBePromoted;
+        } else if (node.parentNode.greaterNode === node) {
+          node.parentNode.greaterNode = nodeToBePromoted;
+        }
       }
-    }
 
-    let nodeToBePromoted; // replaced extracted node
-    // !parentNode in case of root node
-    if (parentNode.smallerNode === node) {
-      nodeToBePromoted = findGreatestChild(node);
-    } else if (parentNode.greaterNode === node) {
-      nodeToBePromoted = findSmallestChild(node);
+      if (nodeToBePromoted) {
+        nodeToBePromoted.parentNode = node.parentNode;
+        nodeToBePromoted.level = node.level;
+        if (node.smallerNode && nodeToBePromoted !== node.smallerNode) {
+          nodeToBePromoted.smallerNode = node.smallerNode;
+          node.smallerNode.parentNode = nodeToBePromoted;
+        }
+        if (node.greaterNode && nodeToBePromoted !== node.greaterNode) {
+          nodeToBePromoted.greaterNode = node.greaterNode;
+          node.greaterNode.parentNode = nodeToBePromoted;
+        }
+      }
     }
 
     return node;

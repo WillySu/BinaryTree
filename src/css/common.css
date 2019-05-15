@@ -29,6 +29,10 @@ line {
   padding: 6px;
 }
 
+.controlPopup .row {
+  margin-bottom: 6px;
+}
+
 .controlPopup input[type=number] {
   width: 3em;
 }
