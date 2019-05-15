@@ -10,6 +10,9 @@ Run `npm run start`
 
 ## Demo
 
+### URL
+https://willysu.github.io/BinaryTree/docs/
+
 ### Add
 ![Add Node](assets/binaryTreeAdd.mov.gif?raw=true "Add Node")
 
